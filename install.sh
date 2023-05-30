@@ -1,6 +1,6 @@
 #!/bin/bash
 
-swap_size=1G
+swap_size=1GB
 
 # Install necessary packages
 sudo apt-get update && sudo apt-get install -y zram-tools
