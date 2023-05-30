@@ -1,6 +1,7 @@
 #!/bin/bash
 
-swap_size=1GB
+# Set swap size to 1GB
+swap_size=1G
 
 # Install necessary packages
 sudo apt-get update && sudo apt-get install -y zram-tools
