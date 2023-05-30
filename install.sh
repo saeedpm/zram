@@ -11,7 +11,27 @@ sudo sed -i 's|#zram_size=auto|zram_size=$((1024*1024*1024))|g' /usr/share/initr
 # Update initramfs
 sudo update-initramfs -u
 
-# Enable zram
+# Create zram-config service
+sudo tee /etc/systemd/system/zram-config.service << EOF
+[Unit]
+Description=ZRAM Configuration
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/zramctl --find --size 1024M
+ExecStartPost=/sbin/mkswap /dev/zram0
+ExecStartPost=/sbin/swapon --priority 100 /dev/zram0
+ExecStop=/sbin/swapoff /dev/zram0
+ExecStop=/usr/bin/zramctl --reset /dev/zram0
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Reload systemd and enable zram-config service
+sudo systemctl daemon-reload
 sudo systemctl enable zram-config.service
 
 echo "ZRAM swap configured with 1GB size."
