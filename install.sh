@@ -1,14 +1,17 @@
 #!/bin/bash
 
-# Set swap size to 1GB
-swap_size=1G
+# Install zram
+sudo apt-get update
+sudo apt-get install zram-tools -y
 
-# Install necessary packages
-sudo apt-get update && sudo apt-get install -y zram-tools
+# Configure zram
+sudo sed -i 's|/dev/zram0|/dev/zram0 none swap defaults 0 0|g' /etc/fstab
+sudo sed -i 's|#zram_size=auto|zram_size=$((1024*1024*1024))|g' /usr/share/initramfs-tools/scripts/init-top/compressed_swap
 
-# Enable zramswap
-sudo sed -i 's/^#zram$/zram/' /etc/modules
-sudo sed -i "s/^#SIZE=$/SIZE=$swap_size/" /etc/default/zramswap
-sudo sed -i 's/^#PRIORITY=/PRIORITY=/' /etc/default/zramswap
-sudo systemctl enable zramswap.service
-sudo systemctl start zramswap.service
+# Update initramfs
+sudo update-initramfs -u
+
+# Enable zram
+sudo systemctl enable zram-config.service
+
+echo "ZRAM swap configured with 1GB size."
